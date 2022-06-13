@@ -12,9 +12,9 @@ from .utils import *
 variables = {}
 
 # paths to .py and .sh scripts
-filename = "/Users/someo/PycharmProjects/aka_service_rest_api/service/api/hpc_scripts/temp.py"
-filename_final = "/Users/someo/PycharmProjects/aka_service_rest_api/service/api/hpc_scripts/full_proc_eeg.py"
-filename_sh = "/Users/someo/PycharmProjects/aka_service_rest_api/service/api/hpc_scripts/cron.sh"
+filename = "api/hpc_scripts/temp.py"
+filename_final = "api/hpc_scripts/full_proc_eeg.py"
+filename_sh = "api/hpc_scripts/run.sh"
 
 # paths to .set files which were chosen by user in Aka MiniApp and dates of completing processing these files on hpc
 # (Aka MiniApp context)
@@ -92,7 +92,7 @@ class JobsView(APIView):
             "scp -i /Users/someo/.ssh/id_rsa " + filename_final + " gorodnichev_m_a@84.237.88.44:/home/fano.icmmg/gorodnichev_m_a/aka/processing_modules/workdir/")
         print("Service: SCP PYTHON SCRIPT TO HPC")
 
-        # create cron.sh
+        # create run.sh
         write_sh_script()
         # copy it to hpc
         do_remote_bash_cmd(
@@ -101,19 +101,19 @@ class JobsView(APIView):
 
         # 1 way
         # submit job on hpc
-        # out = do_remote_bash_cmd("ssh gorodnichev_m_a@nks-1p.sscc.ru -i /Users/someo/.ssh/id_rsa \"cd aka/processing_modules/workdir; dos2unix cron.sh; sbatch cron.sh\"")
-        # job_id = re.findall(r'\d+', out)[0]
-        # print("SUBMIT JOB ON HPC", job_id)
+        out = do_remote_bash_cmd("ssh gorodnichev_m_a@nks-1p.sscc.ru -i /Users/someo/.ssh/id_rsa \"cd aka/processing_modules/workdir; dos2unix run.sh; sbatch run.sh\"")
+        job_id = re.findall(r'\d+', out)[0]
+        print("Service: SUBMIT JOB ON HPC", job_id)
 
         # 2 way
         # another way of doing processing when cluster queue is stack
-        out = do_remote_bash_cmd(
-            "ssh gorodnichev_m_a@nks-1p.sscc.ru -i /Users/someo/.ssh/id_rsa \"cd aka/processing_modules/workdir; source ../../env/bin/activate; python full_proc_eeg.py; deactivate\"")
-        print("Service: DONE PROCESSING")
+        # out = do_remote_bash_cmd(
+        #     "ssh gorodnichev_m_a@nks-1p.sscc.ru -i /Users/someo/.ssh/id_rsa \"cd aka/processing_modules/workdir; source ../../env/bin/activate; python full_proc_eeg.py; deactivate\"")
+        # print("Service: DONE PROCESSING")
 
         # wait for job execution (only if the way 1 was used)
-        # while job_is_alive(job_id):
-        #     time.sleep(5)
+        while job_is_alive(job_id):
+            time.sleep(5)
 
         # clean files
         clean_file(filename)

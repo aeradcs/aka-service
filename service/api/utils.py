@@ -71,7 +71,7 @@ def clean_file(filename):
 def write_sh_script():
     python_run_line = "python full_proc_eeg.py"
     sh_script = "#!/bin/bash\n#SBATCH --nodes=1\n#SBATCH --threads-per-core=1\n#SBATCH --time=0-10\n#SBATCH --job-name=aka\n#SBATCH -p knl-alone\n#SBATCH --ntasks-per-node=1\nsource ../../env/bin/activate\n" + python_run_line + "\ndeactivate\n"
-    f = open("/Users/someo/PycharmProjects/aka_service_rest_api/service/api/hpc_scripts/cron.sh", "w")
+    f = open("api/hpc_scripts/run.sh", "w")
     f.write(sh_script)
     f.close()
 
