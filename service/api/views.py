@@ -35,7 +35,6 @@ class VarsView(APIView):
 
             # write line of code to .py file based on request info
             write_var(filename, body['varname'], body['varvalue'])
-            print("Service: body['varname'], body['varvalue']", body['varname'], body['varvalue'])
 
             return Response('OK. Successfully create var.', status=status.HTTP_200_OK)
         else:
@@ -88,16 +87,11 @@ class JobsView(APIView):
         # create final python script
         write_imports(filename_final)
         copy_file_content(filename, filename_final)
-
         # copy it to hpc
         do_remote_bash_cmd(
             "scp -i /home/nalepova/.ssh/mykeys/id_rsa.nks-1p "
             + filename_final
             + " gorodnichev_m_a@84.237.88.44:/home/fano.icmmg/gorodnichev_m_a/aka/processing_modules/workdir/")
-        # do_remote_bash_cmd(
-        #     "scp -i /Users/someo/.ssh/id_rsa "
-        #     + filename_final
-        #     + " gorodnichev_m_a@84.237.88.44:/home/fano.icmmg/gorodnichev_m_a/aka/processing_modules/workdir/")
         print("Service: SCP PYTHON SCRIPT TO HPC")
 
         # create run.sh
@@ -107,10 +101,6 @@ class JobsView(APIView):
             "scp -i /home/nalepova/.ssh/mykeys/id_rsa.nks-1p "
             + filename_sh
             + " gorodnichev_m_a@84.237.88.44:/home/fano.icmmg/gorodnichev_m_a/aka/processing_modules/workdir/")
-        # do_remote_bash_cmd(
-        #     "scp -i /Users/someo/.ssh/id_rsa "
-        #     + filename_sh
-        #     + " gorodnichev_m_a@84.237.88.44:/home/fano.icmmg/gorodnichev_m_a/aka/processing_modules/workdir/")
         print("Service: SCP SH SCRIPT TO HPC")
 
         # 1 way
@@ -118,16 +108,14 @@ class JobsView(APIView):
         out = do_remote_bash_cmd(
             "ssh gorodnichev_m_a@nks-1p.sscc.ru -i /home/nalepova/.ssh/mykeys/id_rsa.nks-1p"
             + " \"cd aka/processing_modules/workdir; sbatch run.sh\"")
-        # out = do_remote_bash_cmd("ssh gorodnichev_m_a@nks-1p.sscc.ru -i /Users/someo/.ssh/id_rsa \"cd aka/processing_modules/workdir; dos2unix run.sh; sbatch run.sh\"")
         job_id = re.findall(r'\d+', out)[0]
         print("Service: SUBMIT JOB ON HPC", job_id)
 
         # 2 way
-        # another way of doing processing when cluster queue is stack
+        # another way of doing processing when cluster queue is stuck
         # out = do_remote_bash_cmd(
-        #     "ssh gorodnichev_m_a@nks-1p.sscc.ru -i /home/nalepova/.ssh/mykeys/id_rsa.nks-1p \"cd aka/processing_modules/workdir; source ../../env/bin/activate; python full_proc_eeg.py; deactivate\"")
-        # out = do_remote_bash_cmd(
-        #     "ssh gorodnichev_m_a@nks-1p.sscc.ru -i /Users/someo/.ssh/id_rsa \"cd aka/processing_modules/workdir; source ../../env/bin/activate; python full_proc_eeg.py; deactivate\"")
+        #     "ssh gorodnichev_m_a@nks-1p.sscc.ru -i /home/nalepova/.ssh/mykeys/id_rsa.nks-1p"
+        #     + "\"cd aka/processing_modules/workdir; source ../../env/bin/activate; python full_proc_eeg.py; deactivate\"")
         # print("Service: DONE PROCESSING")
 
         # wait for job execution (only if the way 1 was used)
@@ -146,9 +134,8 @@ class JobView(APIView):
     def get(self, request, job_id):
         # get names and dates of two last modified files -- pngs that were created while this job execution
         output = do_remote_bash_cmd(
-            "ssh gorodnichev_m_a@nks-1p.sscc.ru -i /home/nalepova/.ssh/mykeys/id_rsa.nks-1p \"cd aka/processing_modules/workdir/psd_pngs; ls -tl | head -n 3\"")
-        # output = do_remote_bash_cmd("ssh gorodnichev_m_a@nks-1p.sscc.ru -i /Users/someo/.ssh/id_rsa \"cd aka/processing_modules/workdir/psd_pngs; ls -tl | head -n 3\"")
-
+            "ssh gorodnichev_m_a@nks-1p.sscc.ru -i /home/nalepova/.ssh/mykeys/id_rsa.nks-1p"
+            + " \"cd aka/processing_modules/workdir/psd_pngs; ls -tl | head -n 3\"")
         name1, date1, name2, date2 = save_paths_and_dates(output)
         print("Service: PATHS WERE SAVED")
 
@@ -156,11 +143,11 @@ class JobView(APIView):
                         status=status.HTTP_200_OK)
 
 
-# example of line which is needed to be parsed
+# example of line which is needed to be parsed -->
 # "total 6
 # -rw-r--r-- 1 gorodnichev_m_a fano.icmmg 37533 Jun 12 12:33 EC-Multitaper-PSD-gradiometers-,Европеоиды,первый-год,11,Fon1,Co_011_v1_fon1.set.png
 # -rw-r--r-- 1 gorodnichev_m_a fano.icmmg 36399 Jun 12 12:33 EO-Multitaper-PSD-gradiometers-,Европеоиды,первый-год,11,Fon1,Co_011_v1_fon1.set.png"
-# example of dictionary element parsed from this line
+# example of dictionary element parsed from this line -->
 # 'Европеоиды/первый год/11/Fon1/Co_011_v1_fon1.set': 'Jun 12 12:33'
 def save_paths_and_dates(out):
     dates = re.findall(r'(Jun?|May?) ([0-9][0-9] [0-9][0-9]:[0-9][0-9])', out)
@@ -195,9 +182,5 @@ class ImageView(APIView):
                 + "/home/fano.icmmg/gorodnichev_m_a/aka/processing_modules/workdir/psd_pngs/"
                 + image_path
                 + " /home/nalepova/aka-service/service/api/hpc_scripts")
-            # do_remote_bash_cmd(
-            # "scp -p -i /Users/someo/.ssh/id_rsa gorodnichev_m_a@84.237.88.44:/home/fano.icmmg/gorodnichev_m_a/aka/processing_modules/workdir/psd_pngs/"
-            # + image_path
-            # + " /Users/someo/PycharmProjects/aka-service-/service/api/hpc_scripts")
         img = open("api/hpc_scripts/" + image_path, 'rb')
         return FileResponse(img)

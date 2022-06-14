@@ -1,7 +1,6 @@
 import glob
 import subprocess
 
-## -*- coding: cp1251 -*-
 # create lines of code with necessary imports
 def write_imports(filename):
     with open(filename, "w") as f:
@@ -99,10 +98,6 @@ def job_is_alive(job_id):
         "ssh gorodnichev_m_a@nks-1p.sscc.ru -i /home/nalepova/.ssh/mykeys/id_rsa.nks-1p \"squeue --jobs "
         + job_id
         + " --users gorodnichev_m_a\"")
-    # output = do_remote_bash_cmd(
-    #     "ssh gorodnichev_m_a@nks-1p.sscc.ru -i /Users/someo/.ssh/id_rsa \"squeue --jobs "
-    #     + job_id
-    #     + " --users gorodnichev_m_a\"")
     if job_id in output:
         print(f"Service: JOB {job_id} IS ALIVE")
         return True
