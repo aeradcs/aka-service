@@ -1,13 +1,11 @@
 import re
 import time
-
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 import json
 from .utils import *
 from django.http import FileResponse
-import glob
 
 
 # variables used in a workflow
@@ -133,17 +131,6 @@ class JobView(APIView):
         name1, date1, name2, date2 = save_paths_and_dates(output)
         print("Service: PATHS WERE SAVED")
 
-        # load name1 and name2 pngs from remote to local dir in Aka MiniApp
-        # do_remote_bash_cmd(
-        #     "scp -p -i /Users/someo/.ssh/id_rsa gorodnichev_m_a@84.237.88.44:/home/fano.icmmg/gorodnichev_m_a/aka/processing_modules/workdir/psd_pngs/"
-        #     + name1
-        #     + " /Users/someo/PycharmProjects/aka-client-web-fix-fix/miniapp/res/")
-        # do_remote_bash_cmd(
-        #     "scp -p -i /Users/someo/.ssh/id_rsa gorodnichev_m_a@84.237.88.44:/home/fano.icmmg/gorodnichev_m_a/aka/processing_modules/workdir/psd_pngs/"
-        #     + name2
-        #     + " /Users/someo/PycharmProjects/aka-client-web-fix-fix/miniapp/res/")
-        # print("Service: PNGS WERE LOADED")
-
         return Response('Pngs were loaded.\n' + name1 + "|" + date1 + "\n" + name2 + "|" + date2,
                         status=status.HTTP_200_OK)
 
@@ -152,7 +139,7 @@ class JobView(APIView):
 # "total 6
 # -rw-r--r-- 1 gorodnichev_m_a fano.icmmg 37533 Jun 12 12:33 EC-Multitaper-PSD-gradiometers-,Европеоиды,первый-год,11,Fon1,Co_011_v1_fon1.set.png
 # -rw-r--r-- 1 gorodnichev_m_a fano.icmmg 36399 Jun 12 12:33 EO-Multitaper-PSD-gradiometers-,Европеоиды,первый-год,11,Fon1,Co_011_v1_fon1.set.png"
-# example of dict element parsed from this line
+# example of dictionary element parsed from this line
 # 'Европеоиды/первый год/11/Fon1/Co_011_v1_fon1.set': 'Jun 12 12:33'
 def save_paths_and_dates(out):
     dates = re.findall(r'(Jun?|May?) ([0-9][0-9] [0-9][0-9]:[0-9][0-9])', out)
@@ -165,26 +152,16 @@ def save_paths_and_dates(out):
     paths_dates[path] = dates[0][0] + " " + dates[0][1]
     return names[0][0], dates[0][0] + " " + dates[0][1], names[1][0], dates[1][0] + " " + dates[1][1]
 
+
 class PathsView(APIView):
     # get saved paths to .set files and dates of processing
     def get(self, request):
         return Response(str(paths_dates), status=status.HTTP_200_OK)
 
 
-def image_is_in_service_context(image_path):
-    for file_name in glob.glob("api/hpc_scripts/*.png"):
-        if image_path in file_name:
-            return True
-    return False
-
-
 class ImageView(APIView):
-    # get saved paths to .set files and dates of processing
+    # get saved images
     def get(self, request, image_path):
-        # img = open("api/hpc_scripts/EC-Multitaper-PSD-gradiometers-,Users,someo,Desktop,data,D_Nov_042_fon1.png", 'rb')
-        # return FileResponse(img)
-        # print(request, image_path)
-        # return FileResponse()
         image_path = image_path.replace("/", "")
         if not image_is_in_service_context(image_path):
             do_remote_bash_cmd(
@@ -193,3 +170,5 @@ class ImageView(APIView):
                 + " /Users/someo/PycharmProjects/aka-service-/service/api/hpc_scripts")
         img = open("api/hpc_scripts/" + image_path, 'rb')
         return FileResponse(img)
+
+    # scp -p -i /home/nalepova/.ssh/mykeys/id_rsa.nks-1p gorodnichev_m_a@84.237.88.44:/home/fano.icmmg/gorodnichev_m_a/aka/processing_modules/workdir/psd_pngs/EO-Multitaper-PSD-gradiometers-,Якуты,Yakuts_2015,D_Yak_029_fon1,D_Yak_029_fon1.set.png /home/nalepova/

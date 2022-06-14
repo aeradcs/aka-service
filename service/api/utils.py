@@ -1,3 +1,4 @@
+import glob
 import subprocess
 
 
@@ -94,3 +95,10 @@ def job_is_alive(job_id):
     else:
         print("Service: JOB IS NOT ALIVE")
         return False
+
+
+def image_is_in_service_context(image_path):
+    for file_name in glob.glob("api/hpc_scripts/*.png"):
+        if image_path in file_name:
+            return True
+    return False
