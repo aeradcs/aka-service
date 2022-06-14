@@ -1,16 +1,21 @@
 # aka-service install
 
-```
-1. git clone https://gitlab.ssd.sscc.ru/e.nalepova/aka-service.git
 
-2. cd aka-service/
+1. 
+        git clone https://gitlab.ssd.sscc.ru/e.nalepova/aka-service.git
 
-3. python3 -m venv venv
+2. 
+        cd aka-service/
 
-4. source venv/bin/activate
+3. 
+        python3 -m venv venv
 
-5. pip install -r requirements.txt
-```
+4. 
+        source venv/bin/activate
+
+5. 
+        pip install -r requirements.txt
+
 
 6. если не работает pip install -r requirements.txt, то выполнить:
 
