@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. ../env/bin/activate
+. ../venv/bin/activate
 APP_NAME="python3 manage.py runserver 0.0.0.0:7710"
 RUN_FILE="${APP_NAME}"
 ACTION=$1
