@@ -144,13 +144,16 @@ class JobView(APIView):
 def save_paths_and_dates(out):
     dates = re.findall(r'(Jun?|May?) ([0-9][0-9] [0-9][0-9]:[0-9][0-9])', out)
     names = re.findall(r'((EO|EC).+\.png)', out)
-    path = names[0][0].replace("EO-Multitaper-PSD-gradiometers-,", "") \
-        .replace("EC-Multitaper-PSD-gradiometers-,", "") \
-        .replace(".png", "") \
-        .replace("-", " ") \
-        .replace(",", "/")
-    paths_dates[path] = dates[0][0] + " " + dates[0][1]
-    return names[0][0], dates[0][0] + " " + dates[0][1], names[1][0], dates[1][0] + " " + dates[1][1]
+    if len(dates) > 0 and len(names) > 0:
+        path = names[0][0].replace("EO-Multitaper-PSD-gradiometers-,", "") \
+            .replace("EC-Multitaper-PSD-gradiometers-,", "") \
+            .replace(".png", "") \
+            .replace("-", " ") \
+            .replace(",", "/")
+        paths_dates[path] = dates[0][0] + " " + dates[0][1]
+        return names[0][0], dates[0][0] + " " + dates[0][1], names[1][0], dates[1][0] + " " + dates[1][1]
+    else:
+        return "", "", "", ""
 
 
 class PathsView(APIView):

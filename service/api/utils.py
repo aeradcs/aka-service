@@ -90,10 +90,10 @@ def job_is_alive(job_id):
     output = do_remote_bash_cmd(
         "ssh gorodnichev_m_a@nks-1p.sscc.ru -i /Users/someo/.ssh/id_rsa \"squeue --jobs " + job_id + " --users gorodnichev_m_a\"")
     if job_id in output:
-        print("Service: JOB IS ALIVE")
+        print(f"Service: JOB {job_id} IS ALIVE")
         return True
     else:
-        print("Service: JOB IS NOT ALIVE")
+        print(f"Service: JOB {job_id} IS NOT ALIVE")
         return False
 
 
