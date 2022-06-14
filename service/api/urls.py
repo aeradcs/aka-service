@@ -16,4 +16,6 @@ urlpatterns = [
     path('jobs/<str:job_id>/operations/', OperationsView.as_view()),  # post
 
     path('paths/', PathsView.as_view()),  # get
+
+    path('images/<path:image_path>', ImageView.as_view()),  # get
 ]

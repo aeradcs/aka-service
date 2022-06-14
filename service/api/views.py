@@ -6,6 +6,9 @@ from rest_framework import status
 from rest_framework.response import Response
 import json
 from .utils import *
+from django.http import FileResponse
+import glob
+
 
 # variables used in a workflow
 # (Aka Service context)
@@ -128,17 +131,18 @@ class JobView(APIView):
         # get names and dates of two last modified files -- pngs that were created while this job execution
         output = do_remote_bash_cmd("ssh gorodnichev_m_a@nks-1p.sscc.ru -i /Users/someo/.ssh/id_rsa \"cd aka/processing_modules/workdir/psd_pngs; ls -tl | head -n 3\"")
         name1, date1, name2, date2 = save_paths_and_dates(output)
+        print("Service: PATHS WERE SAVED")
 
         # load name1 and name2 pngs from remote to local dir in Aka MiniApp
-        do_remote_bash_cmd(
-            "scp -p -i /Users/someo/.ssh/id_rsa gorodnichev_m_a@84.237.88.44:/home/fano.icmmg/gorodnichev_m_a/aka/processing_modules/workdir/psd_pngs/"
-            + name1
-            + " /Users/someo/PycharmProjects/aka-client-web-fix-fix/miniapp/res/")
-        do_remote_bash_cmd(
-            "scp -p -i /Users/someo/.ssh/id_rsa gorodnichev_m_a@84.237.88.44:/home/fano.icmmg/gorodnichev_m_a/aka/processing_modules/workdir/psd_pngs/"
-            + name2
-            + " /Users/someo/PycharmProjects/aka-client-web-fix-fix/miniapp/res/")
-        print("Service: PNGS WERE LOADED")
+        # do_remote_bash_cmd(
+        #     "scp -p -i /Users/someo/.ssh/id_rsa gorodnichev_m_a@84.237.88.44:/home/fano.icmmg/gorodnichev_m_a/aka/processing_modules/workdir/psd_pngs/"
+        #     + name1
+        #     + " /Users/someo/PycharmProjects/aka-client-web-fix-fix/miniapp/res/")
+        # do_remote_bash_cmd(
+        #     "scp -p -i /Users/someo/.ssh/id_rsa gorodnichev_m_a@84.237.88.44:/home/fano.icmmg/gorodnichev_m_a/aka/processing_modules/workdir/psd_pngs/"
+        #     + name2
+        #     + " /Users/someo/PycharmProjects/aka-client-web-fix-fix/miniapp/res/")
+        # print("Service: PNGS WERE LOADED")
 
         return Response('Pngs were loaded.\n' + name1 + "|" + date1 + "\n" + name2 + "|" + date2,
                         status=status.HTTP_200_OK)
@@ -161,8 +165,31 @@ def save_paths_and_dates(out):
     paths_dates[path] = dates[0][0] + " " + dates[0][1]
     return names[0][0], dates[0][0] + " " + dates[0][1], names[1][0], dates[1][0] + " " + dates[1][1]
 
-
 class PathsView(APIView):
     # get saved paths to .set files and dates of processing
     def get(self, request):
         return Response(str(paths_dates), status=status.HTTP_200_OK)
+
+
+def image_is_in_service_context(image_path):
+    for file_name in glob.glob("api/hpc_scripts/*.png"):
+        if image_path in file_name:
+            return True
+    return False
+
+
+class ImageView(APIView):
+    # get saved paths to .set files and dates of processing
+    def get(self, request, image_path):
+        # img = open("api/hpc_scripts/EC-Multitaper-PSD-gradiometers-,Users,someo,Desktop,data,D_Nov_042_fon1.png", 'rb')
+        # return FileResponse(img)
+        # print(request, image_path)
+        # return FileResponse()
+        image_path = image_path.replace("/", "")
+        if not image_is_in_service_context(image_path):
+            do_remote_bash_cmd(
+                "scp -p -i /Users/someo/.ssh/id_rsa gorodnichev_m_a@84.237.88.44:/home/fano.icmmg/gorodnichev_m_a/aka/processing_modules/workdir/psd_pngs/"
+                + image_path
+                + " /Users/someo/PycharmProjects/aka-service-/service/api/hpc_scripts")
+        img = open("api/hpc_scripts/" + image_path, 'rb')
+        return FileResponse(img)
