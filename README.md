@@ -44,7 +44,7 @@ _______________________________________________________________________________
 
 - В каталоге /aka-service/service лежит 2 файла – cron.sh и run.sh.
 
-   В cron.sh нужно поменять путь в строке
+   В cron.sh нужно поменять путь "/home/nalepova" в строке 
 
         cd /home/nalepova/aka-service/service 
 
