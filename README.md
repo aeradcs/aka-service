@@ -1,5 +1,8 @@
-# aka-service install
+# Aka Service OpenAPI
 
+<img src="https://user-images.githubusercontent.com/43800886/174632645-03de5246-4a4e-4683-88f7-cd26c0d565c5.png" width="50%" height="50%">
+
+# Aka Service install on linux
 
 1. 
         git clone https://gitlab.ssd.sscc.ru/e.nalepova/aka-service.git
